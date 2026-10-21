@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // conexão do app (no Neon, pode ser o endereço pooler)
+  directUrl = env("DIRECT_URL")   // conexão direta (sem pooler), usada pelo prisma migrate
 }
 
 enum TipoCarteira {

@@ -40,6 +40,31 @@ npm run dev                     # http://localhost:4000/api
 
 Os seeds são idempotentes (garantem item a item, sem duplicar).
 
+## Deploy (Neon + Render)
+
+Variáveis de ambiente em produção:
+
+| Variável | Valor |
+|---|---|
+| `DATABASE_URL` | Endereço do Neon **com** `-pooler` (conexão do app) |
+| `DIRECT_URL` | O mesmo endereço **sem** `-pooler` (usado pelo `prisma migrate`) |
+| `JWT_SECRET` | String aleatória com pelo menos 16 caracteres (sem ela a API não sobe) |
+| `NODE_ENV` | `production` |
+| `URL_FRONTEND` | URL pública do webApp (CORS) |
+| `TZ` | `America/Sao_Paulo` |
+| `PORTA` | Opcional. A porta é `PORTA`, senão `PORT`, senão 4000; o Render injeta `PORT`, então não defina `PORTA` lá |
+
+Comandos:
+
+```bash
+npm install && npm run build      # build (postinstall roda prisma generate; build = tsc + tsc-alias)
+npx prisma migrate deploy         # aplica as migrations (= npm run prisma:deploy)
+npm start                         # node -r dotenv/config dist/server.js
+```
+
+- Em produção use só `prisma migrate deploy`; **nunca** `prisma migrate dev`.
+- **Não rode o seed em produção**: ele cria o usuário `dev@meusalario.local` com senha conhecida.
+
 ## Estrutura
 
 ```
