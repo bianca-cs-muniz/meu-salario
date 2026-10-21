@@ -19,7 +19,8 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         // 'prompt': a nova versão só assume quando a usuária toca em "Atualizar" (avisoNovaVersao).
         registerType: 'prompt',
-        includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
+        // Ícones e favicon já entram pelo globPatterns do workbox; incluí-los de novo duplica o precache.
+        includeManifestIcons: false,
         manifest: {
           name: 'Meu Salário',
           short_name: 'Meu Salário',

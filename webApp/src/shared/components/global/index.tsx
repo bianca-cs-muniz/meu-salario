@@ -220,14 +220,15 @@ const GlobalStyles = () => (
         '*, *::before, *::after': { boxSizing: 'border-box' },
         '*': { margin: 0 },
         // Celular "fixo": sem zoom por duplo toque, sem rebote/arrasto da página e sem rolagem horizontal.
-        // A rolagem vertical do conteúdo continua normal.
+        // A rolagem vertical do conteúdo continua normal. overflowX 'clip' (e não 'hidden'): 'hidden'
+        // em html + body transforma o body em container de rolagem e quebra o position: sticky.
         html: {
           background: c.papel,
           colorScheme: 'light',
           WebkitTextSizeAdjust: '100%',
           textSizeAdjust: '100%',
           overscrollBehavior: 'none',
-          overflowX: 'hidden',
+          overflowX: 'clip',
           touchAction: 'manipulation',
           WebkitTapHighlightColor: 'transparent',
         },
@@ -238,7 +239,7 @@ const GlobalStyles = () => (
           fontSize: '15.5px',
           lineHeight: 1.5,
           WebkitFontSmoothing: 'antialiased',
-          overflowX: 'hidden',
+          overflowX: 'clip',
           overscrollBehavior: 'none',
           touchAction: 'manipulation',
         },

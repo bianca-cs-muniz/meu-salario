@@ -90,15 +90,18 @@ webApi: são dados financeiros autenticados e ficariam no aparelho. As navegaç�
 - Computador (Chrome/Edge): ícone de instalar na barra de endereço.
 
 **Atualização.** A cada push na `main` a Vercel publica uma versão nova. O app procura
-atualização ao abrir e a cada 60 minutos; quando acha, mostra a faixa **"Nova versão
-disponível"** (`shared/components/avisoNovaVersao`). **Atualizar** troca para a versão nova e
+atualização ao abrir, a cada 60 minutos e ao voltar do segundo plano; quando acha, mostra a
+faixa **"Nova versão disponível"** (`shared/components/avisoNovaVersao`). **Atualizar** troca para a versão nova e
 recarrega; **Agora não** esconde o aviso, e a versão nova assume quando todas as abas/janelas
 do app forem fechadas. O `vercel.json` manda `sw.js` e `manifest.webmanifest` sem cache
 (`max-age=0, must-revalidate`) e os arquivos de `/assets/` (com hash no nome) com cache de 1 ano.
 
 **Layout fixo no celular.** No celular nada fica "mexendo":
-- o viewport tem `maximum-scale=1, user-scalable=no`, o que **desativa o zoom por pinça**
-  (pedido explícito; avalie se isso atrapalha a acessibilidade antes de mudar);
+- o viewport tem `maximum-scale=1, user-scalable=no`, o que **desativa o zoom por pinça no
+  Android** (pedido explícito; avalie se isso atrapalha a acessibilidade antes de mudar). No
+  **iPhone** o Safari ignora `user-scalable=no` para a pinça desde o iOS 10 (decisão de
+  acessibilidade da Apple), então lá o zoom por pinça continua possível — não há hack aqui para
+  bloqueá-lo. O zoom automático ao focar campos e o zoom de duplo toque ficam bloqueados nos dois;
 - `touch-action: manipulation` (sem zoom de duplo toque) e sem destaque azul ao tocar;
 - `overscroll-behavior: none` (sem rebote/arrasto da página) e sem rolagem horizontal;
 - `-webkit-text-size-adjust: 100%` (o iOS não aumenta o texto ao girar);

@@ -4,16 +4,16 @@
  *
  * Uso:  npm run gerar:icones
  *
- * A imagem de origem já tem margem escura em volta do "B", então nenhum ícone recebe padding extra:
+ * A imagem de origem tem fundo escuro até a borda, sem moldura, e margem em volta do "B", então nenhum ícone recebe padding extra:
  * o "B" fica dentro da zona segura de 80% do maskable. O fundo de maskable e apple-touch-icon usa a
- * cor do canto da imagem (#090E1A) para não aparecer borda branca.
+ * cor do fundo da imagem (#020916) para não aparecer borda branca.
  */
 import fs from 'fs/promises';
 import path from 'path';
 import { instructions } from '@vite-pwa/assets-generator/api/instructions';
 import { generateAssets } from '@vite-pwa/assets-generator/api/generate-assets';
 
-const FUNDO = '#090E1A';
+const FUNDO = '#020916';
 const ORIGEM = path.join(process.cwd(), 'pwa', 'icone-origem.png');
 const DESTINO = path.join(process.cwd(), 'public');
 
