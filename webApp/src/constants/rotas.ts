@@ -11,7 +11,7 @@ export const rotas = {
   CONFIGURACOES: '/configuracoes',
 } as const;
 
-/** Para onde o usuário logado vai ao abrir o app. Volta a ser o Painel quando ele for migrado. */
+/** Para onde o usuário logado vai ao abrir o app. */
 export const ROTA_INICIAL = rotas.PAINEL;
 
 export const rotasDinamicas = {

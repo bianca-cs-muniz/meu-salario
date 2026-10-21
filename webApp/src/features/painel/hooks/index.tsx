@@ -124,7 +124,9 @@ export const useOnboarding = () => {
 
   const handleSalvarVr = formVr.handleSubmit((d) =>
     executar(async () => {
-      const carteira = await criarCarteira({ nome: 'VR', tipo: 'VR' });
+      // Reaproveita a carteira VR que já existir (ex.: passo repetido), senão a API responde 409 VR_JA_EXISTE.
+      const carteira =
+        carteiras.lista?.find((c) => c.tipo === 'VR' && c.ativa) ?? (await criarCarteira({ nome: 'VR', tipo: 'VR' }));
       await criarEntradaFixa({
         tipo: 'ENTRADA',
         descricao: 'Crédito do VR',

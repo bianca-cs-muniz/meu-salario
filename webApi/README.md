@@ -84,7 +84,7 @@ Erros sempre como `{ "error": "mensagem" }` (400 validação/JSON inválido, 401
 | `POST /faturas/:id/pagar` · `POST /faturas/:id/desfazer-pagamento` | | `IFaturaResumo` |
 | `GET /gastos-fixos` | `?tipo=ENTRADA\|SAIDA` | `IRecorrencia[]` |
 | `POST /gastos-fixos` | `ISalvarRecorrencia` | 201 `IRecorrencia` (começa no mês atual e já gera) |
-| `PUT /gastos-fixos/:id` | parcial | `IRecorrencia` (lançamentos com data de cobrança a partir de amanhã e com o valor antigo recebem valor e descrição novos) |
+| `PUT /gastos-fixos/:id` | parcial | `IRecorrencia` (lançamentos já gerados com data de cobrança a partir de amanhã recebem descrição, forma, cartão, carteira, categoria, dia e competência novos; o valor só muda nos que ainda têm o valor antigo; um novo dia que já passou não move o lançamento para o passado) |
 | `DELETE /gastos-fixos/:id` | | 204 (encerra no mês atual e apaga os lançamentos com data de cobrança a partir de amanhã) |
 | `GET /lancamentos` | `?competencia&categoriaId&cartaoId&carteiraId&formaPagamento&tipo&origem&revisado=true\|false&busca` | `ILancamento[]` por data desc |
 | `POST /lancamentos` | `ICriarLancamento` | 201 `{ lancamentos, impacto }` |
@@ -128,10 +128,17 @@ Erros sempre como `{ "error": "mensagem" }` (400 validação/JSON inválido, 401
   respondem **200** (o mock respondia 201 em alguns).
 - `PUT /lancamentos/:id`: no crédito sem parcela, a competência é recalculada pelo ciclo
   quando data, cartão ou forma mudam; trocar a forma de pagamento de uma compra
-  parcelada dá 400; categoria/VR são revalidadas. Lançamento de gasto fixo mantém a
-  competência original ao mudar a data (o aluguel de outubro pago em 01/11 continua em
-  outubro); a edição não altera `mesRecorrencia` (único `recorrenciaId + mesRecorrencia`);
-  se ainda assim houver conflito, 409.
+  parcelada dá 400; categoria/VR são revalidadas. Lançamento de gasto fixo fora do crédito
+  fica na competência do mês da cobrança (`mesRecorrencia`), mesmo mudando a data (o aluguel
+  de outubro pago em 01/11 continua em outubro); no crédito segue o ciclo do cartão quando
+  data, cartão ou forma mudam (PIX → crédito vai para a fatura certa; crédito → PIX volta
+  para o mês da cobrança). A edição não altera `mesRecorrencia` (único
+  `recorrenciaId + mesRecorrencia`); se ainda assim houver conflito, 409.
+- `PUT /gastos-fixos/:id`: os lançamentos já gerados com data a partir de amanhã são
+  atualizados no lugar (não são apagados e regerados, para manter id, `revisado` e edições
+  manuais de valor). A data só muda se o dia mudou, e nunca para hoje ou antes (nesse caso a
+  data é mantida); a competência é recalculada (mês da cobrança, ou ciclo do novo cartão no
+  crédito) e a fatura é criada se faltar.
 - Entrada com VR (ex.: recarga) não exige categoria; a regra `aceitaVr` vale para saídas.
 - Fixo excluído não volta a ser gerado (`geradaAte`).
 - `DELETE /cartoes/:id` também só desativa quando o cartão tem gastos fixos ligados.

@@ -59,7 +59,7 @@ export const Conteudo = styled(Box)`
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #ffffff;
+      background: ${({ theme }) => theme.vars.palette.cores.superficie};
       border: 2px solid currentColor;
     }
   }
@@ -71,24 +71,27 @@ export const Conteudo = styled(Box)`
   }
 `;
 
+/** Tooltip escuro (marinho translúcido) sobre o conteúdo claro: texto em `tooltipTinta`/`cofreMudo`. */
 export const TooltipContainer = styled('div')`
-  background: rgba(11, 37, 69, 0.95);
+  background: ${({ theme }) => theme.vars.palette.cores.tooltipFundo};
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.cofreTinta} 12%, transparent);
   border-radius: 14px;
   padding: 12px 16px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), 0 0 1px rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 12px 28px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 45%, transparent),
+    0 0 1px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.cofreTinta} 20%, transparent);
   min-width: 175px;
 
   .tooltip-titulo {
     font-size: 13px;
     font-weight: 700;
     text-transform: capitalize;
-    color: #f1f5fa;
+    color: ${({ theme }) => theme.vars.palette.cores.tooltipTinta};
     margin-bottom: 8px;
     padding-bottom: 6px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.cofreTinta} 8%, transparent);
   }
 
   .tooltip-linha {
@@ -104,7 +107,7 @@ export const TooltipContainer = styled('div')`
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #9fb3cc;
+    color: ${({ theme }) => theme.vars.palette.cores.cofreMudo};
     font-weight: 500;
   }
 
@@ -118,6 +121,6 @@ export const TooltipContainer = styled('div')`
   .tooltip-valor {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: #f1f5fa;
+    color: ${({ theme }) => theme.vars.palette.cores.tooltipTinta};
   }
 `;

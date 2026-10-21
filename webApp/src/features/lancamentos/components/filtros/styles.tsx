@@ -14,7 +14,7 @@ export const Container = styled(Box)`
     border-radius: 12px;
     border: 1px solid ${({ theme }) => theme.vars.palette.cores.linha};
     background-color: ${({ theme }) => theme.vars.palette.cores.superficie};
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 2px 8px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 6%, transparent);
   }
 
   .busca:focus-within {

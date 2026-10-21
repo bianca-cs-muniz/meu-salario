@@ -177,7 +177,7 @@ export const FormularioFixo = ({ recorrencia, tipoInicial, aoFechar }: IFormular
 
           <BotaoCustomizado.BotaoGrupo alinhamento="entre">
             {f.editando ? (
-              <BotaoCustomizado.BotaoFantasma perigo onClick={f.handleEncerrar}>
+              <BotaoCustomizado.BotaoFantasma perigo onClick={f.handleEncerrar} carregando={f.estaEncerrando}>
                 Encerrar
               </BotaoCustomizado.BotaoFantasma>
             ) : (

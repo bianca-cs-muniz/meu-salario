@@ -7,8 +7,10 @@ export const Container = styled(Box)`
   border-radius: 16px;
   background-color: ${({ theme }) => theme.vars.palette.cores.cofre};
   color: ${({ theme }) => theme.vars.palette.cores.cofreTinta};
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 25px -5px rgba(7, 26, 51, 0.25), 0 8px 10px -6px rgba(7, 26, 51, 0.12);
+  border: 1px solid color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.cofreTinta} 10%, transparent);
+  box-shadow:
+    0 10px 25px -5px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.cofre} 25%, transparent),
+    0 8px 10px -6px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.cofre} 12%, transparent);
 
   ${({ theme }) => theme.breakpoints.up('tablet')} {
     padding: 36px 36px 32px;
@@ -41,7 +43,7 @@ export const Container = styled(Box)`
   }
 
   .sobra.negativo {
-    color: ${({ theme }) => theme.vars.palette.cores.latao};
+    color: ${({ theme }) => theme.vars.palette.cores.cofreDestaque};
   }
 
   .inteiro {

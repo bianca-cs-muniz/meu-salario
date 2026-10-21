@@ -5,7 +5,9 @@ export const Container = styled(Box)`
   border-radius: 14px;
   border: 1px solid ${({ theme }) => theme.vars.palette.cores.linha};
   background-color: ${({ theme }) => theme.vars.palette.cores.superficie};
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.05);
+  box-shadow:
+    0 4px 14px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 8%, transparent),
+    0 1px 3px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 5%, transparent);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
   ${({ theme }) => theme.breakpoints.up('tablet')} {

@@ -11,11 +11,15 @@ export const Aviso = styled(Link)`
   border-left: 3px solid ${({ theme }) => theme.vars.palette.cores.latao};
   background-color: ${({ theme }) => theme.vars.palette.cores.superficie};
   color: ${({ theme }) => theme.vars.palette.cores.tinta};
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(15, 23, 42, 0.05);
+  box-shadow:
+    0 4px 14px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 8%, transparent),
+    0 1px 3px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 5%, transparent);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 
   &:hover {
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12), 0 2px 4px rgba(15, 23, 42, 0.06);
+    box-shadow:
+      0 6px 18px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 12%, transparent),
+      0 2px 4px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 6%, transparent);
     transform: translateY(-1px);
   }
 

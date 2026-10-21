@@ -10,6 +10,7 @@ import AppException from "@erros/app-exception";
 import ErrorMessages from "@erros/error-messages";
 import { cicloDoCartao, competenciaAtual, competenciaDe, interpretarData } from "@helpers/competencia.helper";
 import { descricaoDaParcela, dividirEmParcelas } from "@helpers/parcelas.helper";
+import { competenciaNaEdicao } from "./lancamentos.calculo";
 
 type Tipo = "ENTRADA" | "SAIDA";
 type Forma = "PIX" | "DEBITO" | "DINHEIRO" | "CREDITO" | "VR";
@@ -137,12 +138,14 @@ class LancamentosService {
    * PUT /lancamentos/:id — com `aplicarEmParcelasFuturas`, vale para esta parcela e as seguintes.
    * A data só muda na parcela editada. Fora do crédito, competência e carteira são recalculadas;
    * no crédito sem parcela, a competência segue o ciclo do cartão quando data/cartão/forma mudam.
-   * Lançamento de gasto fixo (recorrenciaId) mantém a competência original: o aluguel de outubro
-   * pago em 01/11 continua sendo o de outubro. A edição nunca mexe em `mesRecorrencia`
-   * (único recorrenciaId + mesRecorrencia).
+   * Lançamento de gasto fixo (recorrenciaId): fora do crédito a competência é o mês da cobrança
+   * (`mesRecorrencia`) — o aluguel de outubro pago em 01/11 continua sendo o de outubro; no crédito
+   * segue o ciclo do cartão como os demais (ver competenciaNaEdicao). A edição nunca mexe em
+   * `mesRecorrencia` (único recorrenciaId + mesRecorrencia).
    */
   async update(usuarioId: string, id: string, dto: UpdateLancamentoDto) {
-    const lancamento = await this.readById(usuarioId, id);
+    const lancamento = await Repository.readParaEditar(usuarioId, id);
+    if (!lancamento) throw new AppException(404, ErrorMessages.REGISTRO_NAO_ENCONTRADO);
     const { aplicarEmParcelasFuturas, ...campos } = dto;
     if (lancamento.grupoParcelaId && campos.formaPagamento && campos.formaPagamento !== lancamento.formaPagamento)
       throw new AppException(400, ErrorMessages.FORMA_PARCELADA_NAO_MUDA);
@@ -169,11 +172,7 @@ class LancamentosService {
         const cartao = vinculos.cartao;
         const cartaoId = cartao ? (campos.cartaoId || !item.cartaoId ? cartao.id : item.cartaoId) : null;
 
-        let competencia = item.competencia;
-        if (item.recorrenciaId) competencia = item.competencia; // gasto fixo: só a data muda
-        else if (!cartao) competencia = competenciaDe(data);
-        else if (!item.grupoParcelaId && (campos.data || cartaoId !== item.cartaoId || item.formaPagamento !== "CREDITO"))
-          competencia = cicloDoCartao(data, cartao.diaFechamento, cartao.diaVencimento).competencia;
+        const competencia = competenciaNaEdicao(item, { data, cartao, cartaoId, dataInformada: ehEditado && !!campos.data });
 
         const descricao = campos.descricao
           ? item.parcelaTotal && item.parcelaNumero
@@ -202,6 +201,7 @@ class LancamentosService {
       }
       await FaturasService.garantir(usuarioId, atualizados, tx);
     });
+    // Defensivo: a edição não altera mesRecorrencia, então o único (recorrenciaId + mesRecorrencia) não deve conflitar.
     await salvar.catch((erro: unknown) => {
       if (lancamento.recorrenciaId && erro instanceof Prisma.PrismaClientKnownRequestError && erro.code === "P2002")
         throw new AppException(409, ErrorMessages.FIXO_JA_LANCADO_NO_MES);

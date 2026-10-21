@@ -55,9 +55,16 @@ class GastosFixosRepository {
     return db.lancamento.createMany({ data, skipDuplicates: true });
   }
 
-  /** Lançamentos com data a partir de `aPartirDe` e com o valor antigo recebem valor e descrição novos. */
-  updateFuturos(recorrenciaId: string, aPartirDe: Date, valorAntigo: number, data: { valorCentavos: number; descricao: string }, db: Db = DataSource) {
-    return db.lancamento.updateMany({ where: { recorrenciaId, data: { gte: aPartirDe }, valorCentavos: valorAntigo }, data });
+  /** Lançamentos do fixo com data a partir de `aPartirDe` (cobranças que ainda não aconteceram). Uso interno. */
+  readFuturos(recorrenciaId: string, aPartirDe: Date, db: Db = DataSource) {
+    return db.lancamento.findMany({
+      where: { recorrenciaId, data: { gte: aPartirDe } },
+      select: { id: true, data: true, valorCentavos: true, competencia: true, mesRecorrencia: true },
+    });
+  }
+
+  updateLancamento(id: string, data: Prisma.LancamentoUncheckedUpdateInput, db: Db = DataSource) {
+    return db.lancamento.update({ where: { id }, data, select: { cartaoId: true, competencia: true } });
   }
 
   /** Apaga os lançamentos com data a partir de `aPartirDe` (cobranças que ainda não aconteceram). */

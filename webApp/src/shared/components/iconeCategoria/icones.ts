@@ -36,5 +36,5 @@ export const ICONES: Record<string, LucideIcon> = {
 /** Cor usada quando o lançamento não tem categoria. */
 export const COR_CATEGORIA_PADRAO = '#8A9A95';
 
-/** Cor do ícone de entrada (verde-limão, mesmo valor do token `credito`). */
-export const COR_ENTRADA = '#A3E635';
+/** Cor do ícone de entrada (verde, mesmo valor do token `credito` #16A34A). */
+export const COR_ENTRADA = '#16A34A';

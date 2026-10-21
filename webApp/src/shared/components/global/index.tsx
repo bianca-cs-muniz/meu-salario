@@ -7,8 +7,11 @@ import { ConfirmProvider, type ConfirmOptions } from 'material-ui-confirm';
 import { Pilula } from './styles';
 
 /**
- * Tokens da paleta "banco" (marinho + rosa + verde-limão), sempre escura.
- * Nos styles use `theme.vars.palette.cores.X`. `credito` colore só as entradas; saídas ficam em `tinta`.
+ * Tokens da paleta "moderna": barra lateral e blocos de destaque escuros (`cofre`, marinho profundo)
+ * sobre o conteúdo claro (`papel` no fundo, `superficie` nos blocos, texto em `tinta`).
+ * Nos styles use `theme.vars.palette.cores.X`; nunca cor fixa. `credito` colore só as entradas; saídas ficam em `tinta`.
+ * Tokens `cofre*` são para o que fica sobre o fundo escuro; `grafico*` e `tooltip*` são do gráfico do Painel
+ * (recharts precisa do valor real: leia via `useTheme().palette.cores`).
  */
 interface ICores {
   papel: string;
@@ -24,12 +27,24 @@ interface ICores {
   cofre: string;
   cofreTinta: string;
   cofreMudo: string;
+  /** Texto de destaque (quente) sobre o `cofre`: o `latao` não tem contraste no fundo escuro. */
+  cofreDestaque: string;
+  /** Texto de alerta sobre o `cofre` (valor negativo, fatura atrasada). */
+  cofreAlerta: string;
   alerta: string;
   alertaSuave: string;
   atencao: string;
   atencaoSuave: string;
   credito: string;
   debito: string;
+  graficoEntrada: string;
+  graficoEntradaFim: string;
+  graficoSaida: string;
+  graficoSaidaFim: string;
+  graficoSobra: string;
+  graficoSobraInicio: string;
+  tooltipFundo: string;
+  tooltipTinta: string;
 }
 
 declare module '@mui/material/styles' {
@@ -75,12 +90,22 @@ const CORES: ICores = {
   cofre: '#071A33',
   cofreTinta: '#FFFFFF',
   cofreMudo: '#9FB3CC',
+  cofreDestaque: '#FCD34D',
+  cofreAlerta: '#FF7070',
   alerta: '#EF4444',
   alertaSuave: 'rgba(239,68,68,0.08)',
   atencao: '#F59E0B',
   atencaoSuave: 'rgba(245,158,11,0.14)',
   credito: '#16A34A',
   debito: '#EF4444',
+  graficoEntrada: '#10B981',
+  graficoEntradaFim: '#059669',
+  graficoSaida: '#FF4365',
+  graficoSaidaFim: '#E11D48',
+  graficoSobra: '#F59E0B',
+  graficoSobraInicio: '#FCD34D',
+  tooltipFundo: 'rgba(11,37,69,0.95)',
+  tooltipTinta: '#F1F5FA',
 };
 
 const PALETA = {

@@ -37,12 +37,17 @@ type TokenCor =
   | 'dinheiroSuave'
   | 'latao'
   | 'alerta'
-  | 'alertaSuave';
+  | 'alertaSuave'
+  | 'cofreDestaque'
+  | 'cofreAlerta';
 
-/** Cores do selo de status da fatura (tokens do tema: `theme.vars.palette.cores[fundo]`). */
-export const CLASSE_STATUS_FATURA: Record<StatusFatura, { fundo: TokenCor; texto: TokenCor }> = {
-  ABERTA: { fundo: 'papel', texto: 'mudo' },
-  FECHADA: { fundo: 'atencaoSuave', texto: 'atencao' },
-  PAGA: { fundo: 'dinheiroSuave', texto: 'latao' },
-  ATRASADA: { fundo: 'alertaSuave', texto: 'alerta' },
+/**
+ * Cores do selo de status da fatura (tokens do tema: `theme.vars.palette.cores[fundo]`).
+ * `textoSobreCofre` é usado quando o selo fica sobre o fundo escuro (destaque da fatura).
+ */
+export const CLASSE_STATUS_FATURA: Record<StatusFatura, { fundo: TokenCor; texto: TokenCor; textoSobreCofre: TokenCor }> = {
+  ABERTA: { fundo: 'papel', texto: 'mudo', textoSobreCofre: 'mudo' },
+  FECHADA: { fundo: 'atencaoSuave', texto: 'atencao', textoSobreCofre: 'atencao' },
+  PAGA: { fundo: 'dinheiroSuave', texto: 'latao', textoSobreCofre: 'cofreDestaque' },
+  ATRASADA: { fundo: 'alertaSuave', texto: 'alerta', textoSobreCofre: 'cofreAlerta' },
 };

@@ -4,7 +4,7 @@ import LancamentosService from "@modulos/lancamentos/lancamentos.service";
 import FaturasService from "@modulos/faturas/faturas.service";
 import { CreateGastoFixoDto } from "./dtos/create.dto";
 import { UpdateGastoFixoDto } from "./dtos/update.dto";
-import { competenciasAGerar, lancamentoDoMes } from "./recorrencias.calculo";
+import { camposDoLancamentoFuturo, competenciasAGerar, lancamentoDoMes } from "./recorrencias.calculo";
 import AppException from "@erros/app-exception";
 import ErrorMessages from "@erros/error-messages";
 import { competenciaAtual, deslocarCompetencia, inicioDeAmanha } from "@helpers/competencia.helper";
@@ -39,7 +39,11 @@ class GastosFixosService {
     return recorrencia;
   }
 
-  /** PUT /gastos-fixos/:id — lançamentos com data a partir de amanhã e com o valor antigo recebem o novo valor e descrição. */
+  /**
+   * PUT /gastos-fixos/:id — os lançamentos já gerados com data a partir de amanhã recebem descrição,
+   * forma, cartão, carteira, categoria, data (novo dia, sem ir para o passado) e competência novos;
+   * o valor só muda nos que ainda têm o valor antigo (preserva edição manual). Ver camposDoLancamentoFuturo.
+   */
   async update(usuarioId: string, id: string, dto: UpdateGastoFixoDto) {
     const atual = await this.readById(usuarioId, id);
     const forma = dto.formaPagamento ?? atual.formaPagamento;
@@ -65,7 +69,22 @@ class GastosFixosService {
         },
         tx,
       );
-      await Repository.updateFuturos(id, inicioDeAmanha(), atual.valorCentavos, { valorCentavos: atualizada.valorCentavos, descricao: atualizada.descricao }, tx);
+      const aPartirDe = inicioDeAmanha();
+      const fixo = {
+        descricao: atualizada.descricao,
+        valorCentavos: atualizada.valorCentavos,
+        valorAntigo: atual.valorCentavos,
+        novoDiaDoMes: atualizada.diaDoMes !== atual.diaDoMes ? atualizada.diaDoMes : null,
+        formaPagamento: atualizada.formaPagamento,
+        categoriaId: vinculos.categoriaId,
+        carteiraId: vinculos.carteiraId,
+        cartao: vinculos.cartao,
+      };
+      const futuros = await Repository.readFuturos(id, aPartirDe, tx);
+      const atualizados = [];
+      for (const lancamento of futuros)
+        atualizados.push(await Repository.updateLancamento(lancamento.id, camposDoLancamentoFuturo(lancamento, fixo, aPartirDe), tx));
+      await FaturasService.garantir(usuarioId, atualizados, tx);
       return atualizada;
     });
     await this.gerarPendentes(usuarioId);

@@ -12,11 +12,15 @@ import { Proximas } from '../components/proximas';
 import { useFatura } from '../hooks/queryes';
 import { Colunas, Conteudo, Corpo, Esqueletos } from './styles';
 
-/** Fatura de um cartão (rota `/cartoes/:id?competencia=AAAA-MM`). */
+const COMPETENCIA_VALIDA = /^\d{4}-(0[1-9]|1[0-2])$/;
+
+/** Fatura de um cartão (rota `/cartoes/:id?competencia=AAAA-MM`). Competência inválida vira o mês atual. */
 export const FaturaPagina = () => {
   const { id = '' } = useParams();
   const { getParam, setParam } = useQueryParams();
-  const competencia = getParam('competencia') ?? competenciaAtual();
+  const competenciaParam = getParam('competencia');
+  const competencia =
+    competenciaParam && COMPETENCIA_VALIDA.test(competenciaParam) ? competenciaParam : competenciaAtual();
   const mudarCompetencia = (c: string) => setParam('competencia', c);
 
   const { fatura: f, estaCarregando, erro, recarregar } = useFatura(id, competencia);

@@ -26,7 +26,9 @@ export const Janela = styled(Box)`
   color: ${({ theme }) => theme.vars.palette.cores.tinta};
   outline: none;
   border: 1px solid ${({ theme }) => theme.vars.palette.cores.linha};
-  box-shadow: 0 20px 35px -5px rgba(15, 23, 42, 0.16), 0 10px 15px -5px rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 20px 35px -5px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 16%, transparent),
+    0 10px 15px -5px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 8%, transparent);
 
   &.estreita {
     max-width: 24rem;

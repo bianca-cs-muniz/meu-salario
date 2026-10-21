@@ -66,19 +66,27 @@ documentadas em `../webApi/README.md`.
 
 ## Visual
 
-Paleta azul marinho ("cara de banco"), sempre escura: fundo #0B2545, blocos #13355F,
-rosa #F43F98 nas ações (com texto marinho #05162E), rosa claro #FBCFE8 nos detalhes,
-foco e links, e marinho profundo #071A33 na barra lateral. Entradas em verde-limão
-#A3E635 (token `credito`); saídas no texto normal. Débito e erros usam #FF7070
-(tokens `debito` e `alerta`), derivado do vermelho #EF233C para ter contraste; o
-#EF233C puro só aparece no fundo suave de erro (`alertaSuave`, 8% de opacidade). Títulos e valores em Cormorant Garamond; texto em
+Tema "moderno": barra lateral escura e conteúdo claro. A barra lateral, os blocos de
+destaque (Painel e fatura) e os toasts usam o marinho profundo `cofre` #071A33, com texto
+`cofreTinta` #FFFFFF, secundário `cofreMudo` #9FB3CC e realces `cofreDestaque` #FCD34D
+(âmbar claro; o `latao` não tem contraste no fundo escuro) e `cofreAlerta` #FF7070.
+O conteúdo fica no claro: fundo `papel` #F1F5F9, blocos `superficie` #FFFFFF
+(`superficie2` #E2E8F0), texto `tinta` #0F172A, secundário `mudo` #64748B e bordas
+`linha` #CBD5E1. Ações em rosa `dinheiro` #F43F98 (texto `sobreDinheiro` #FFFFFF),
+detalhes e foco em `latao` #B45309, avisos em `atencao` #F59E0B. Entradas em verde
+`credito` #16A34A; saídas no texto normal. Erros e débito em `alerta`/`debito` #EF4444
+(fundo suave `alertaSuave`, 8% de opacidade). O gráfico do Painel tem tokens próprios
+(`graficoEntrada` #10B981, `graficoSaida` #FF4365, `graficoSobra` #F59E0B e o tooltip
+escuro `tooltipFundo`/`tooltipTinta`). Títulos e valores em Cormorant Garamond; texto em
 Manrope. As fontes vêm embutidas (pacotes `@fontsource`), sem depender do Google Fonts.
 
 Todas as cores ficam no tema MUI (`src/shared/components/global/index.tsx`), no grupo
-`palette.cores` (papel, superficie, tinta, mudo, linha, dinheiro, latao, cofre, alerta,
-atencao, credito, debito…). Não há modo claro: o esquema escuro é o único e as CSS
-variables ficam em `:root`. Nos `styles.tsx` use sempre
-`theme.vars.palette.cores.<token>`, nunca cor fixa (gráficos futuros também).
+`palette.cores`. O esquema é só o claro (`color-scheme: light`), com as CSS variables em
+`:root`. Regra: **nunca cor fixa nos `styles.tsx`** — use sempre
+`theme.vars.palette.cores.<token>` (sombras e transparências com
+`color-mix(in srgb, <token> N%, transparent)`). Onde a lib precisa do valor real (recharts),
+leia `useTheme().palette.cores`. Hex fixo só em dados: cores de categoria
+(`features/categorias/cores.ts`, `iconeCategoria/icones.ts`) e de cartão.
 
 ## Estrutura
 

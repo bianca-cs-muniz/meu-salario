@@ -17,7 +17,7 @@ export const Destaque = ({ fatura: f }: { fatura: IFaturaDetalhe }) => {
       <span aria-hidden className="filete" style={{ background: f.cartao.cor }} />
       <div className="conteudo">
         <div>
-          <ChipStatusFatura status={f.status} />
+          <ChipStatusFatura status={f.status} sobreCofre />
           <Tipografias.Valor component="p" className="total">
             {formatarDinheiro(f.totalCentavos)}
           </Tipografias.Valor>

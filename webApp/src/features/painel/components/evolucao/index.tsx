@@ -1,4 +1,4 @@
-import { useTheme } from '@mui/material';
+import { alpha, useTheme, type Theme } from '@mui/material';
 import { Bar, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Bloco } from '@shared/components/bloco';
 import { Tipografias } from '@shared/components/tipografias';
@@ -9,27 +9,29 @@ import { Conteudo, TooltipContainer } from './styles';
 const moeda = (v: number) =>
   v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
 
-/** Paleta de cores fortes e vibrantes para destacar o gráfico */
-const CORES_GRAFICO = {
+type CoresTema = Theme['palette']['cores'];
+
+/** Cores fortes do gráfico, vindas do tema (tokens `grafico*`); o recharts precisa do valor real. */
+const coresGrafico = (cores: CoresTema) => ({
   entradas: {
-    inicio: '#10B981',
-    fim: '#059669',
-    solida: '#10B981',
+    inicio: cores.graficoEntrada,
+    fim: cores.graficoEntradaFim,
+    solida: cores.graficoEntrada,
     rotulo: 'Entradas',
   },
   saidas: {
-    inicio: '#FF4365',
-    fim: '#E11D48',
-    solida: '#FF4365',
+    inicio: cores.graficoSaida,
+    fim: cores.graficoSaidaFim,
+    solida: cores.graficoSaida,
     rotulo: 'Saídas',
   },
   sobra: {
-    inicio: '#FCD34D',
-    fim: '#F59E0B',
-    solida: '#F59E0B',
+    inicio: cores.graficoSobraInicio,
+    fim: cores.graficoSobra,
+    solida: cores.graficoSobra,
     rotulo: 'Sobra do mês',
   },
-};
+});
 
 interface TooltipPayloadItem {
   name: string;
@@ -43,13 +45,15 @@ interface CustomTooltipProps {
 }
 
 const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+  const { cores } = useTheme().palette;
   if (!active || !payload || !payload.length) return null;
+  const CORES_GRAFICO = coresGrafico(cores);
 
   return (
     <TooltipContainer>
       <div className="tooltip-titulo">{label}</div>
       {payload.map((item) => {
-        let cor = '#9FB3CC';
+        let cor = cores.cofreMudo;
         let rotulo = item.name;
 
         if (item.name === 'Entradas') {
@@ -64,7 +68,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
         }
 
         const ehSobra = item.name === 'Sobra';
-        const corValor = ehSobra && item.value < 0 ? '#FF7070' : '#F1F5FA';
+        const corValor = ehSobra && item.value < 0 ? cores.cofreAlerta : cores.tooltipTinta;
 
         return (
           <div key={item.name} className="tooltip-linha">
@@ -86,6 +90,7 @@ const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
 export const Evolucao = () => {
   const { cores } = useTheme().palette;
   const { evolucao } = useEvolucao(6);
+  const CORES_GRAFICO = coresGrafico(cores);
 
   if (!evolucao || evolucao.length < 2) return null;
 
@@ -133,7 +138,7 @@ export const Evolucao = () => {
               />
               <Tooltip
                 content={<CustomTooltip />}
-                cursor={{ fill: 'rgba(15, 23, 42, 0.04)', radius: 4 }}
+                cursor={{ fill: alpha(cores.tinta, 0.04), radius: 4 }}
               />
               <Bar
                 dataKey="Entradas"
@@ -152,8 +157,8 @@ export const Evolucao = () => {
                 dataKey="Sobra"
                 stroke="url(#gradSobra)"
                 strokeWidth={3}
-                dot={{ r: 4, fill: '#FFFFFF', stroke: CORES_GRAFICO.sobra.solida, strokeWidth: 2.5 }}
-                activeDot={{ r: 6, fill: CORES_GRAFICO.sobra.inicio, stroke: '#FFFFFF', strokeWidth: 2.5 }}
+                dot={{ r: 4, fill: cores.superficie, stroke: CORES_GRAFICO.sobra.solida, strokeWidth: 2.5 }}
+                activeDot={{ r: 6, fill: CORES_GRAFICO.sobra.inicio, stroke: cores.superficie, strokeWidth: 2.5 }}
               />
             </ComposedChart>
           </ResponsiveContainer>
@@ -165,7 +170,7 @@ export const Evolucao = () => {
               className="indicador-bolinha"
               style={{
                 backgroundColor: CORES_GRAFICO.entradas.solida,
-                boxShadow: '0 0 8px rgba(16, 185, 129, 0.6)',
+                boxShadow: `0 0 8px ${alpha(CORES_GRAFICO.entradas.solida, 0.6)}`,
               }}
             />
             <span>Entradas</span>
@@ -175,7 +180,7 @@ export const Evolucao = () => {
               className="indicador-bolinha"
               style={{
                 backgroundColor: CORES_GRAFICO.saidas.solida,
-                boxShadow: '0 0 8px rgba(255, 67, 101, 0.6)',
+                boxShadow: `0 0 8px ${alpha(CORES_GRAFICO.saidas.solida, 0.6)}`,
               }}
             />
             <span>Saídas</span>
@@ -186,7 +191,7 @@ export const Evolucao = () => {
               style={{
                 color: CORES_GRAFICO.sobra.solida,
                 backgroundColor: CORES_GRAFICO.sobra.solida,
-                boxShadow: '0 0 8px rgba(245, 158, 11, 0.6)',
+                boxShadow: `0 0 8px ${alpha(CORES_GRAFICO.sobra.solida, 0.6)}`,
               }}
             />
             <span>Sobra</span>

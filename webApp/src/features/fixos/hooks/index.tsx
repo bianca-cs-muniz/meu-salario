@@ -48,7 +48,7 @@ interface IUseFormularioFixo {
 
 /** Formulário de gasto/entrada fixa (antigo FormFixo). */
 export const useFormularioFixo = ({ recorrencia, tipoInicial, aoFechar }: IUseFormularioFixo) => {
-  const { criar, estaCriando, editar, estaEditando, encerrar } = useFixosMutacoes();
+  const { criar, estaCriando, editar, estaEditando, encerrar, estaEncerrando } = useFixosMutacoes();
   const confirmar = useConfirm();
 
   // ---------- opções
@@ -159,6 +159,7 @@ export const useFormularioFixo = ({ recorrencia, tipoInicial, aoFechar }: IUseFo
     carteiraEfetiva,
     erro,
     salvando: estaCriando || estaEditando || isSubmitting,
+    estaEncerrando,
     register,
     control,
     handleSalvar,

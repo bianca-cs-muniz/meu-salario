@@ -3,6 +3,9 @@ import DataSource from "@database/data-source";
 import { Db, lancamentoSelect } from "@database/selects";
 import { ReadLancamentoDto } from "./dtos/read.dto";
 
+/** Uso interno da edição: inclui `mesRecorrencia`, que nunca vai no JSON. */
+const lancamentoEdicaoSelect = { ...lancamentoSelect, mesRecorrencia: true } satisfies Prisma.LancamentoSelect;
+
 class LancamentosRepository {
   private repository = DataSource.lancamento;
 
@@ -33,11 +36,16 @@ class LancamentosRepository {
     return db.lancamento.findFirst({ where: { id, usuarioId }, select: lancamentoSelect });
   }
 
-  /** Parcelas do mesmo grupo com número >= (ou >) ao informado. */
+  /** Igual ao readById, com `mesRecorrencia` (só para a edição; não devolver na API). */
+  readParaEditar(usuarioId: string, id: string) {
+    return this.repository.findFirst({ where: { id, usuarioId }, select: lancamentoEdicaoSelect });
+  }
+
+  /** Parcelas do mesmo grupo com número >= (ou >) ao informado (com `mesRecorrencia`, uso interno). */
   readGrupo(usuarioId: string, grupoParcelaId: string, numero: { gte: number } | { gt: number }) {
     return this.repository.findMany({
       where: { usuarioId, grupoParcelaId, parcelaNumero: numero },
-      select: lancamentoSelect,
+      select: lancamentoEdicaoSelect,
       orderBy: { parcelaNumero: "asc" },
     });
   }

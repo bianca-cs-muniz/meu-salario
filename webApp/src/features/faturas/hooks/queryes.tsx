@@ -50,7 +50,7 @@ export const useFaturasMutacoes = () => {
       snackBar(fatura.pagaEm ? 'Pagamento desfeito' : 'Fatura marcada como paga', 'success');
       invalidarDados();
     },
-    onError: (error: Error) => snackBar(error.message || 'Não foi possível atualizar.', 'error'),
+    onError: (error: Error) => snackBar(mensagemDeErro(error, 'Não foi possível atualizar.'), 'error'),
   });
 
   return {

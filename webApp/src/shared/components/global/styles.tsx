@@ -12,7 +12,9 @@ export const Pilula = styled(MaterialDesignContent)`
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.4;
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 10px 15px -3px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 10%, transparent),
+      0 4px 6px -4px color-mix(in srgb, ${({ theme }) => theme.vars.palette.cores.tinta} 10%, transparent);
     background-color: ${({ theme }) => theme.vars.palette.cores.cofre};
     color: ${({ theme }) => theme.vars.palette.cores.cofreTinta};
   }

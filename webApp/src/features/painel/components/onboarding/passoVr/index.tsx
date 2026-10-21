@@ -57,7 +57,7 @@ export const PassoVr = ({ onboarding }: { onboarding: IOnboardingEstado }) => {
         <BotaoCustomizado.BotaoPrimario larguraTotal onClick={handleSalvarVr} carregando={salvando}>
           Continuar
         </BotaoCustomizado.BotaoPrimario>
-        <BotaoCustomizado.BotaoFantasma larguraTotal onClick={pularVr}>
+        <BotaoCustomizado.BotaoFantasma larguraTotal onClick={pularVr} disabled={salvando}>
           Não recebo VR
         </BotaoCustomizado.BotaoFantasma>
       </div>
