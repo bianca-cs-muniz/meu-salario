@@ -57,10 +57,14 @@ Variáveis de ambiente em produção:
 Comandos:
 
 ```bash
-npm install && npm run build      # build (postinstall roda prisma generate; build = tsc + tsc-alias)
-npx prisma migrate deploy         # aplica as migrations (= npm run prisma:deploy)
-npm start                         # node -r dotenv/config dist/server.js
+npm install --include=dev && npm run build && npx prisma migrate deploy   # Build Command do Render
+npm start                                                                 # node -r dotenv/config dist/server.js
 ```
+
+- O `--include=dev` é necessário porque, com `NODE_ENV=production`, o `npm install` pula as
+  devDependencies (TypeScript, tsc-alias, Prisma CLI) e o build falha. O `postinstall` roda
+  `prisma generate`; o build é `tsc` + `tsc-alias`; o `prisma migrate deploy` (= `npm run prisma:deploy`)
+  aplica as migrations.
 
 - Em produção use só `prisma migrate deploy`; **nunca** `prisma migrate dev`.
 - **Não rode o seed em produção**: ele cria o usuário `dev@meusalario.local` com senha conhecida.
