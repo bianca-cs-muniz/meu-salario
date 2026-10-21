@@ -1,0 +1,222 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoCarteira {
+  CONTA   // conta corrente onde cai o salário
+  VR      // vale-refeição / alimentação
+}
+
+enum GrupoCategoria {
+  ESSENCIAL   // 50%
+  DESEJO      // 30%
+  POUPANCA    // 20%
+}
+
+enum TipoLancamento {
+  ENTRADA
+  SAIDA
+}
+
+enum FormaPagamento {
+  PIX
+  DEBITO
+  DINHEIRO
+  CREDITO   // exige cartaoId
+  VR        // exige carteira do tipo VR
+}
+
+enum OrigemLancamento {
+  APP
+  WHATSAPP
+  RECORRENCIA
+}
+
+enum PapelMensagem {
+  USUARIO
+  AGENTE
+}
+
+model Usuario {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  senha             String
+  nome              String
+  telefoneWhatsapp  String?  @unique // só dígitos com DDI: "5511999998888"
+  criadoEm          DateTime @default(now())
+
+  carteiras     Carteira[]
+  categorias    Categoria[]
+  cartoes       Cartao[]
+  faturas       Fatura[]
+  recorrencias  Recorrencia[]
+  lancamentos   Lancamento[]
+  mensagens     MensagemAgente[]
+  avisos        AvisoEnviado[]
+
+  @@map("usuarios")
+}
+
+model Carteira {
+  id         String       @id @default(cuid())
+  usuarioId  String
+  usuario    Usuario      @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  nome       String       // "Conta Nubank", "VR Alelo"
+  tipo       TipoCarteira
+  ativa      Boolean      @default(true)
+  criadoEm   DateTime     @default(now())
+
+  lancamentos  Lancamento[]
+  recorrencias Recorrencia[]
+
+  @@index([usuarioId])
+  @@map("carteiras")
+}
+
+model Categoria {
+  id                    String         @id @default(cuid())
+  usuarioId             String
+  usuario               Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  nome                  String
+  icone                 String         // nome de ícone do lucide-react, ex.: "shopping-cart"
+  cor                   String         // hex, ex.: "#E0A030"
+  grupo                 GrupoCategoria
+  limiteMensalCentavos  Int?
+  aceitaVr              Boolean        @default(false) // Mercado e Comida = true
+  ativa                 Boolean        @default(true)
+
+  lancamentos  Lancamento[]
+  recorrencias Recorrencia[]
+
+  @@unique([usuarioId, nome])
+  @@map("categorias")
+}
+
+model Cartao {
+  id                  String   @id @default(cuid())
+  usuarioId           String
+  usuario             Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  nome                String   // "Nubank", "Inter"
+  diaFechamento       Int      // 1 a 28
+  diaVencimento       Int      // 1 a 28
+  limiteCentavos      Int?
+  cor                 String   @default("#7A6BC4")
+  ativo               Boolean  @default(true)
+  criadoEm            DateTime @default(now())
+
+  faturas       Fatura[]
+  lancamentos   Lancamento[]
+  recorrencias  Recorrencia[]
+
+  @@index([usuarioId])
+  @@map("cartoes")
+}
+
+// Uma fatura por cartão por mês de vencimento. O total NÃO é gravado:
+// é a soma dos lançamentos com o mesmo cartaoId e competencia.
+model Fatura {
+  id           String    @id @default(cuid())
+  usuarioId    String
+  usuario      Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  cartaoId     String
+  cartao       Cartao    @relation(fields: [cartaoId], references: [id], onDelete: Cascade)
+  competencia  String    // "AAAA-MM" do vencimento
+  fechamento   DateTime
+  vencimento   DateTime
+  pagaEm       DateTime?
+
+  @@unique([cartaoId, competencia])
+  @@index([usuarioId, competencia])
+  @@map("faturas")
+}
+
+model Recorrencia {
+  id             String         @id @default(cuid())
+  usuarioId      String
+  usuario        Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  tipo           TipoLancamento
+  descricao      String         // "Salário", "Aluguel", "Netflix"
+  valorCentavos  Int
+  diaDoMes       Int            // 1 a 28
+  formaPagamento FormaPagamento
+  categoriaId    String?        // obrigatório quando tipo = SAIDA
+  categoria      Categoria?     @relation(fields: [categoriaId], references: [id])
+  carteiraId     String?        // obrigatório quando não for CREDITO
+  carteira       Carteira?      @relation(fields: [carteiraId], references: [id])
+  cartaoId       String?        // obrigatório quando for CREDITO
+  cartao         Cartao?        @relation(fields: [cartaoId], references: [id])
+  inicio         String         // "AAAA-MM" da primeira geração
+  fim            String?        // "AAAA-MM" da última (null = sem fim)
+  geradaAte      String?        // "AAAA-MM" do último MÊS DA RECORRÊNCIA gerado (fixo excluído não volta)
+  ativa          Boolean        @default(true)
+  criadoEm       DateTime       @default(now())
+
+  lancamentos  Lancamento[]
+
+  @@index([usuarioId])
+  @@map("recorrencias")
+}
+
+model Lancamento {
+  id               String           @id @default(cuid())
+  usuarioId        String
+  usuario          Usuario          @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  tipo             TipoLancamento
+  descricao        String
+  valorCentavos    Int              // sempre positivo; o tipo diz se entra ou sai
+  data             DateTime         // quando a compra/entrada aconteceu
+  competencia      String           // "AAAA-MM" do orçamento afetado (ver regras)
+  formaPagamento   FormaPagamento
+  categoriaId      String?
+  categoria        Categoria?       @relation(fields: [categoriaId], references: [id])
+  carteiraId       String?
+  carteira         Carteira?        @relation(fields: [carteiraId], references: [id])
+  cartaoId         String?
+  cartao           Cartao?          @relation(fields: [cartaoId], references: [id])
+  parcelaNumero    Int?             // 1, 2, 3...
+  parcelaTotal     Int?             // 6
+  grupoParcelaId   String?          // mesmo valor em todas as parcelas da compra
+  recorrenciaId    String?
+  mesRecorrencia   String?          // "AAAA-MM" do mês da recorrência (só lançamentos gerados por fixo)
+  recorrencia      Recorrencia?     @relation(fields: [recorrenciaId], references: [id], onDelete: SetNull)
+  origem           OrigemLancamento @default(APP)
+  revisado         Boolean          @default(true) // false = estagiário ficou em dúvida
+  observacao       String?          // motivo da dúvida do agente, por exemplo
+  criadoEm         DateTime         @default(now())
+
+  @@unique([recorrenciaId, mesRecorrencia]) // impede gerar o mesmo fixo duas vezes no mesmo mês
+  @@index([usuarioId, competencia])
+  @@index([usuarioId, cartaoId, competencia])
+  @@index([usuarioId, revisado])
+  @@index([grupoParcelaId])
+  @@map("lancamentos")
+}
+
+model MensagemAgente {
+  id                 String        @id @default(cuid())
+  usuarioId          String
+  usuario            Usuario       @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  papel              PapelMensagem
+  texto              String
+  whatsappMessageId  String?       @unique // a Meta reenvia webhooks: evita processar 2x
+  criadoEm           DateTime      @default(now())
+
+  @@index([usuarioId, criadoEm])
+  @@map("mensagens_agente")
+}
+
+model AvisoEnviado {
+  id         String   @id @default(cuid())
+  usuarioId  String
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  chave      String   // ex.: "fatura-fechando:<cartaoId>:2026-11"
+  enviadoEm  DateTime @default(now())
+
+  @@unique([usuarioId, chave])
+  @@map("avisos_enviados")
+}

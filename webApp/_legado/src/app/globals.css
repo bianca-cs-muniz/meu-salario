@@ -1,0 +1,114 @@
+@import "tailwindcss";
+
+/* Meu Salário · paleta rosa e ameixa
+   Rosa, ameixa e detalhes em rosa escuro. Serifa nos números, sans no texto.
+   Os nomes viram classes do Tailwind: bg-papel, text-tinta, border-linha, bg-cofre... */
+:root {
+  --papel: #f8e8ee;          /* fundo */
+  --superficie: #fff9fb;     /* blocos */
+  --superficie-2: #fdf1f5;   /* campos */
+  --tinta: #3b2531;
+  --mudo: #8c6b7a;
+  --linha: #efd3de;
+  --dinheiro: #795064;       /* ameixa: ações e entradas */
+  --dinheiro-suave: #f6dbe5;
+  --sobre-dinheiro: #fff9fb;
+  --latao: #c97896;          /* rosa: detalhes finos */
+  --cofre: #795064;          /* painel do destaque */
+  --cofre-tinta: #fff9fb;
+  --cofre-mudo: #e8b8c8;
+  --alerta: #a3354a;
+  --alerta-suave: #f9dde3;
+  --atencao: #95652a;
+  --atencao-suave: #f8ead8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --papel: #1d1318;
+    --superficie: #271a20;
+    --superficie-2: #2e2027;
+    --tinta: #f8e8ee;
+    --mudo: #b897a6;
+    --linha: #3d2a33;
+    --dinheiro: #e8b8c8;
+    --dinheiro-suave: #3a2530;
+    --sobre-dinheiro: #1d1318;
+    --latao: #d68aa6;
+    --cofre: #5c3a4b;
+    --cofre-tinta: #fff9fb;
+    --cofre-mudo: #e8b8c8;
+    --alerta: #f09aa8;
+    --alerta-suave: #3c1c24;
+    --atencao: #e2b46e;
+    --atencao-suave: #33261a;
+  }
+}
+
+@theme inline {
+  --color-papel: var(--papel);
+  --color-superficie: var(--superficie);
+  --color-superficie-2: var(--superficie-2);
+  --color-tinta: var(--tinta);
+  --color-mudo: var(--mudo);
+  --color-linha: var(--linha);
+  --color-dinheiro: var(--dinheiro);
+  --color-dinheiro-suave: var(--dinheiro-suave);
+  --color-sobre-dinheiro: var(--sobre-dinheiro);
+  --color-latao: var(--latao);
+  --color-cofre: var(--cofre);
+  --color-cofre-tinta: var(--cofre-tinta);
+  --color-cofre-mudo: var(--cofre-mudo);
+  --color-alerta: var(--alerta);
+  --color-alerta-suave: var(--alerta-suave);
+  --color-atencao: var(--atencao);
+  --color-atencao-suave: var(--atencao-suave);
+  --font-sans: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-display: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+}
+
+html {
+  background: var(--papel);
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--font-sans);
+  font-size: 15.5px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A serifa só aparece em títulos e valores grandes; pesos altos não existem nela. */
+.font-display {
+  font-weight: 600 !important;
+  letter-spacing: -0.01em;
+  font-feature-settings: "lnum" 1, "pnum" 1;
+}
+
+.num {
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+:focus-visible {
+  outline: 1.5px solid var(--latao);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--dinheiro-suave);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
