@@ -4,6 +4,7 @@ import { GlobalStyles as MUIGlobalStyles } from '@mui/material';
 import { ptBR as ptBRMaterial } from '@mui/material/locale';
 import { SnackbarProvider } from 'notistack';
 import { ConfirmProvider, type ConfirmOptions } from 'material-ui-confirm';
+import { AvisoNovaVersao } from '../avisoNovaVersao';
 import { Pilula } from './styles';
 
 /**
@@ -204,6 +205,7 @@ export const Globals: FC<IGlobals> = ({ children }) => {
         <ConfirmProvider defaultOptions={OPCOES_CONFIRMACAO}>
           <GlobalStyles />
           {children}
+          <AvisoNovaVersao />
         </ConfirmProvider>
       </SnackbarProvider>
     </ThemeProvider>
@@ -217,7 +219,18 @@ const GlobalStyles = () => (
       return {
         '*, *::before, *::after': { boxSizing: 'border-box' },
         '*': { margin: 0 },
-        html: { background: c.papel, colorScheme: 'light' },
+        // Celular "fixo": sem zoom por duplo toque, sem rebote/arrasto da página e sem rolagem horizontal.
+        // A rolagem vertical do conteúdo continua normal.
+        html: {
+          background: c.papel,
+          colorScheme: 'light',
+          WebkitTextSizeAdjust: '100%',
+          textSizeAdjust: '100%',
+          overscrollBehavior: 'none',
+          overflowX: 'hidden',
+          touchAction: 'manipulation',
+          WebkitTapHighlightColor: 'transparent',
+        },
         body: {
           background: c.papel,
           color: c.tinta,
@@ -226,9 +239,16 @@ const GlobalStyles = () => (
           lineHeight: 1.5,
           WebkitFontSmoothing: 'antialiased',
           overflowX: 'hidden',
+          overscrollBehavior: 'none',
+          touchAction: 'manipulation',
         },
         'img, picture, video, canvas, svg': { display: 'block', maxWidth: '100%' },
         'input, button, textarea, select': { font: 'inherit', color: 'inherit' },
+        // iOS dá zoom ao focar campos com menos de 16px: piso de 16px no celular. Campos com classe
+        // própria menor (ex.: filtros de Lançamentos) garantem os 16px no próprio styles.
+        [theme.breakpoints.down('tablet')]: {
+          'input, textarea, select': { fontSize: '16px' },
+        },
         button: { background: 'none', border: 0, padding: 0 },
         a: { color: 'inherit', textDecoration: 'none' },
         'ul, ol': { listStyle: 'none', padding: 0 },

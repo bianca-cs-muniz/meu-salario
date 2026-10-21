@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig(({ mode }) => {
@@ -13,7 +14,44 @@ export default defineConfig(({ mode }) => {
   };
 
   return {
-    plugins: [react()],
+    plugins: [
+      react(),
+      VitePWA({
+        // 'prompt': a nova versão só assume quando a usuária toca em "Atualizar" (avisoNovaVersao).
+        registerType: 'prompt',
+        includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
+        manifest: {
+          name: 'Meu Salário',
+          short_name: 'Meu Salário',
+          description: 'Quanto do salário ainda sobra este mês.',
+          lang: 'pt-BR',
+          dir: 'ltr',
+          id: '/',
+          start_url: '/',
+          scope: '/',
+          display: 'standalone',
+          orientation: 'portrait',
+          theme_color: '#F1F5F9',
+          background_color: '#F1F5F9',
+          icons: [
+            { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
+            { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+            { src: 'maskable-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          ],
+        },
+        workbox: {
+          // Só o "casco" do app (JS, CSS, HTML, ícones e fontes latinas) vai para o cache.
+          globPatterns: ['**/*.{js,css,html,png,ico,svg}', '**/*latin*.woff2'],
+          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api\//],
+          cleanupOutdatedCaches: true,
+          // Proibido adicionar runtimeCaching para a API (dados financeiros autenticados).
+        },
+        devOptions: { enabled: false },
+      }),
+    ],
     server: { port: 3000, strictPort: true, proxy },
     preview: { port: 3000, strictPort: true, proxy },
     resolve: {

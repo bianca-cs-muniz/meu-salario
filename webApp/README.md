@@ -35,6 +35,7 @@ npm run lint                      # ESLint
 npm run build                     # checa os tipos e gera dist/
 npm run preview                   # serve o dist/ em http://localhost:3000 (com o mesmo proxy)
 npm run create:feature <nome>     # gera o esqueleto de uma feature
+npm run gerar:icones              # gera os ícones do PWA em public/ (veja a seção PWA)
 ```
 
 ## Integração com a webApi
@@ -52,7 +53,8 @@ npm run create:feature <nome>     # gera o esqueleto de uma feature
    por exemplo `https://minha-api.com/api`. Como front e API ficam em domínios
    diferentes, **a API precisa liberar CORS para o domínio do front** (na webApi,
    variável `URL_FRONTEND`, aceita vários domínios separados por vírgula).
-   O `vercel.json` só faz o fallback de SPA (todas as rotas → `index.html`).
+   O `vercel.json` faz o fallback de SPA (todas as rotas → `index.html`) e define os
+   cabeçalhos de cache do PWA (veja a seção PWA).
    O webhook do WhatsApp aponta para a **API**.
 
 | Variável | Onde | Para quê |
@@ -63,6 +65,55 @@ npm run create:feature <nome>     # gera o esqueleto de uma feature
 
 As rotas, regras (ciclo do cartão, parcelas, VR, resumo do mês) e respostas estão
 documentadas em `../webApi/README.md`.
+
+## PWA
+
+O app pode ser instalado no celular e no computador (`vite-plugin-pwa`, configurado em
+`vite.config.ts`). O build gera `dist/manifest.webmanifest`, `dist/sw.js` e `dist/workbox-*.js`.
+O service worker só existe no build (`npm run build` / `npm run preview`), não no `npm run dev`.
+
+**Ícones.** A origem é `pwa/icone-origem.png` (o "B" rosé no fundo marinho). Depois de trocar
+essa imagem, rode `npm run gerar:icones` (script `scripts/gerarIcones.mjs`, preset `minimal2023`
+do `@vite-pwa/assets-generator`): ele recria em `public/` o `favicon.ico`, `pwa-64x64.png`,
+`pwa-192x192.png`, `pwa-512x512.png`, `maskable-icon-512x512.png` e
+`apple-touch-icon-180x180.png`. Os PNGs gerados entram no git. Maskable e apple-touch-icon
+usam o fundo `#090E1A` (cor do canto da imagem) e o "B" precisa caber na zona segura de 80%.
+
+**Regra: nunca cachear a API.** O service worker guarda só o "casco" do app (JS, CSS, HTML,
+ícones e fontes). É **proibido** adicionar `runtimeCaching` para `/api` ou para a URL da
+webApi: são dados financeiros autenticados e ficariam no aparelho. As navegações para
+`/api/*` também ficam fora do fallback do SPA (`navigateFallbackDenylist`).
+
+**Instalar.**
+- Android (Chrome): abra o site → menu ⋮ → **Instalar app** (ou "Adicionar à tela inicial").
+- iPhone (Safari): abra o site → **Compartilhar** → **Adicionar à Tela de Início**.
+- Computador (Chrome/Edge): ícone de instalar na barra de endereço.
+
+**Atualização.** A cada push na `main` a Vercel publica uma versão nova. O app procura
+atualização ao abrir e a cada 60 minutos; quando acha, mostra a faixa **"Nova versão
+disponível"** (`shared/components/avisoNovaVersao`). **Atualizar** troca para a versão nova e
+recarrega; **Agora não** esconde o aviso, e a versão nova assume quando todas as abas/janelas
+do app forem fechadas. O `vercel.json` manda `sw.js` e `manifest.webmanifest` sem cache
+(`max-age=0, must-revalidate`) e os arquivos de `/assets/` (com hash no nome) com cache de 1 ano.
+
+**Layout fixo no celular.** No celular nada fica "mexendo":
+- o viewport tem `maximum-scale=1, user-scalable=no`, o que **desativa o zoom por pinça**
+  (pedido explícito; avalie se isso atrapalha a acessibilidade antes de mudar);
+- `touch-action: manipulation` (sem zoom de duplo toque) e sem destaque azul ao tocar;
+- `overscroll-behavior: none` (sem rebote/arrasto da página) e sem rolagem horizontal;
+- `-webkit-text-size-adjust: 100%` (o iOS não aumenta o texto ao girar);
+- campos com pelo menos 16px no celular, para o iOS não dar zoom ao focar (regra global no
+  tema + filtros de Lançamentos). Ao criar um campo novo com fonte menor, garanta 1rem abaixo
+  do breakpoint `tablet`;
+- barra inferior, totais de Lançamentos, toasts e o aviso de nova versão ficam fixos,
+  respeitando a área segura (`env(safe-area-inset-bottom)`).
+
+A rolagem vertical do conteúdo continua normal.
+
+**Plano de emergência.** Se uma versão com service worker quebrado for publicada, troque no
+`vite.config.ts` o `VitePWA({ ... })` por `VitePWA({ selfDestroying: true, ... })` e publique:
+o service worker novo se desregistra e limpa os caches nos aparelhos. Depois de corrigido,
+remova o `selfDestroying` e publique de novo.
 
 ## Visual
 

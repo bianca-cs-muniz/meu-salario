@@ -90,4 +90,12 @@ export const Container = styled(Box)`
     cursor: pointer;
     color: ${({ theme }) => theme.vars.palette.cores.latao};
   }
+
+  /* No celular, campos com menos de 16px fazem o iOS dar zoom ao focar. */
+  ${({ theme }) => theme.breakpoints.down('tablet')} {
+    .busca input,
+    select.pilula {
+      font-size: 1rem;
+    }
+  }
 `;
