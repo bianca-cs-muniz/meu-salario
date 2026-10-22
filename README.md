@@ -37,5 +37,13 @@ Abra `http://localhost:3000` e entre com `dev@meusalario.local` / `senha12345`.
 Os seeds podem rodar de novo sem duplicar nada. Os lançamentos dos gastos fixos não
 são criados pelo seed: a API gera no primeiro acesso (até o mês que vem).
 
+## Telegram (estagiário)
+
+Opcional: um bot do Telegram anota gastos e responde consultas ("mercado 230 no vr",
+"quanto sobrou esse mês?") usando o Claude para entender a mensagem. Sem as variáveis
+`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_BOT_USERNAME` e `ANTHROPIC_API_KEY`
+o resto do app funciona normalmente. Passo a passo (BotFather → Render → `npm run telegram:webhook`),
+ping no cron-job.org para evitar o cold start e custos: seção **Telegram** do `webApi/README.md`.
+
 Detalhes da API (rotas, regras e decisões): `webApi/README.md`.
 Detalhes do front: `webApp/README.md`.

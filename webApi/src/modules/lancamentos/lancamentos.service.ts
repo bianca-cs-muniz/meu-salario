@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { Prisma } from "@prisma/client";
+import { OrigemLancamento, Prisma } from "@prisma/client";
 import Repository from "./lancamentos.repository";
 import FaturasService, { CartaoCiclo } from "@modulos/faturas/faturas.service";
 import ResumoService from "@modulos/resumo/resumo.service";
@@ -17,6 +17,8 @@ type Forma = "PIX" | "DEBITO" | "DINHEIRO" | "CREDITO" | "VR";
 
 export type VinculosPedidos = { tipo: Tipo; formaPagamento: Forma; categoriaId?: string; carteiraId?: string; cartaoId?: string };
 export type Vinculos = { categoriaId: string | null; carteiraId: string | null; cartao: CartaoCiclo | null };
+/** Campos internos do create (o body HTTP não aceita): usados pelo estagiário do Telegram. */
+export type CamposInternosLancamento = { origem?: OrigemLancamento; revisado?: boolean; observacao?: string | null };
 
 class LancamentosService {
   /**
@@ -72,8 +74,11 @@ class LancamentosService {
     return lancamento;
   }
 
-  /** POST /lancamentos — cria (em parcelas, no crédito) e devolve o impacto no mês. */
-  async create(usuarioId: string, dto: CreateLancamentoDto) {
+  /**
+   * POST /lancamentos — cria (em parcelas, no crédito) e devolve o impacto no mês.
+   * `interno` (origem, revisado, observacao) só é passado por código interno (Telegram), nunca pelo body.
+   */
+  async create(usuarioId: string, dto: CreateLancamentoDto, interno: CamposInternosLancamento = {}) {
     const vinculos = await this.resolverVinculos(usuarioId, dto);
     const data = dto.data ? interpretarData(dto.data) : new Date();
     const base = {
@@ -83,6 +88,9 @@ class LancamentosService {
       formaPagamento: dto.formaPagamento,
       categoriaId: vinculos.categoriaId,
       carteiraId: vinculos.carteiraId,
+      ...(interno.origem ? { origem: interno.origem } : {}),
+      ...(interno.revisado !== undefined ? { revisado: interno.revisado } : {}),
+      ...(interno.observacao !== undefined ? { observacao: interno.observacao } : {}),
     };
 
     const criados = await Repository.transacao(async (tx) => {

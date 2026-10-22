@@ -36,6 +36,12 @@ enum OrigemLancamento {
   APP
   WHATSAPP
   RECORRENCIA
+  TELEGRAM
+}
+
+enum CanalMensagem {
+  WHATSAPP
+  TELEGRAM
 }
 
 enum PapelMensagem {
@@ -50,6 +56,13 @@ model Usuario {
   nome              String
   telefoneWhatsapp  String?  @unique // só dígitos com DDI: "5511999998888"
   criadoEm          DateTime @default(now())
+
+  // Telegram (estagiário): chat ligado à conta e código de vínculo de uso único.
+  telegramChatId          String?   @unique
+  telegramUsername        String?
+  telegramConectadoEm     DateTime?
+  telegramCodigoHash      String?   @unique // sha256 do código do link (o código nunca é gravado)
+  telegramCodigoExpiraEm  DateTime?
 
   carteiras     Carteira[]
   categorias    Categoria[]
@@ -205,8 +218,11 @@ model MensagemAgente {
   papel              PapelMensagem
   texto              String
   whatsappMessageId  String?       @unique // a Meta reenvia webhooks: evita processar 2x
+  canal              CanalMensagem?
+  idExterno          String?       // id da mensagem no canal (Telegram: update_id)
   criadoEm           DateTime      @default(now())
 
+  @@unique([canal, idExterno]) // o canal reenvia webhooks: evita processar 2x
   @@index([usuarioId, criadoEm])
   @@map("mensagens_agente")
 }

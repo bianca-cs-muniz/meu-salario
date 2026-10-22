@@ -20,4 +20,6 @@ export default {
   CARTEIRA_VR_SO_COM_VR: "A carteira VR só pode ser usada com a forma de pagamento VR.",
   FIXO_JA_LANCADO_NO_MES: "Esse gasto fixo já tem um lançamento nesse mês.",
   REGISTRO_DUPLICADO: "Já existe um registro com esses dados.",
+  TELEGRAM_NAO_CONFIGURADO: "Telegram não configurado.",
+  TELEGRAM_SEGREDO_INVALIDO: "Segredo do webhook inválido.",
 };

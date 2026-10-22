@@ -16,7 +16,9 @@ export const ReadLancamentoSchema = RequestQuery.extend({
   carteiraId: z.string().min(1).optional(),
   formaPagamento: formaPagamento.optional(),
   tipo: tipoLancamento.optional(),
-  origem: z.enum(["APP", "WHATSAPP", "RECORRENCIA"], { errorMap: () => ({ message: "Origem deve ser APP, WHATSAPP ou RECORRENCIA." }) }).optional(),
+  origem: z
+    .enum(["APP", "WHATSAPP", "RECORRENCIA", "TELEGRAM"], { errorMap: () => ({ message: "Origem deve ser APP, WHATSAPP, RECORRENCIA ou TELEGRAM." }) })
+    .optional(),
   revisado: booleanoTexto("revisado"),
   busca: z.string().trim().optional(),
 });

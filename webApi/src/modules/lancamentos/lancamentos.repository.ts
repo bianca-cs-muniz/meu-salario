@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { OrigemLancamento, Prisma } from "@prisma/client";
 import DataSource from "@database/data-source";
 import { Db, lancamentoSelect } from "@database/selects";
 import { ReadLancamentoDto } from "./dtos/read.dto";
@@ -47,6 +47,15 @@ class LancamentosRepository {
       where: { usuarioId, grupoParcelaId, parcelaNumero: numero },
       select: lancamentoEdicaoSelect,
       orderBy: { parcelaNumero: "asc" },
+    });
+  }
+
+  /** Último lançamento do usuário com a origem informada criado a partir de `desde` (com `mesRecorrencia`, uso interno). */
+  readUltimoPorOrigem(usuarioId: string, origem: OrigemLancamento, desde: Date) {
+    return this.repository.findFirst({
+      where: { usuarioId, origem, criadoEm: { gte: desde } },
+      select: lancamentoEdicaoSelect,
+      orderBy: [{ criadoEm: "desc" }, { parcelaNumero: "asc" }],
     });
   }
 
