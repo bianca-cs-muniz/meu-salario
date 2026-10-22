@@ -35,7 +35,8 @@ export const Item = styled('li')`
     font-weight: 500;
   }
 
-  .whatsapp {
+  .whatsapp,
+  .telegram {
     flex-shrink: 0;
     color: ${({ theme }) => theme.vars.palette.cores.dinheiro};
   }

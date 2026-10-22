@@ -8,7 +8,7 @@ export type TipoCarteira = "CONTA" | "VR";
 export type GrupoCategoria = "ESSENCIAL" | "DESEJO" | "POUPANCA";
 export type TipoLancamento = "ENTRADA" | "SAIDA";
 export type FormaPagamento = "PIX" | "DEBITO" | "DINHEIRO" | "CREDITO" | "VR";
-export type OrigemLancamento = "APP" | "WHATSAPP" | "RECORRENCIA";
+export type OrigemLancamento = "APP" | "WHATSAPP" | "TELEGRAM" | "RECORRENCIA";
 export type StatusFatura = "ABERTA" | "FECHADA" | "PAGA" | "ATRASADA";
 
 // ---------- autenticação ----------
@@ -22,6 +22,19 @@ export interface IUsuario {
 export interface IRespostaAuth {
   token: string;
   usuario: IUsuario;
+}
+
+// ---------- telegram (estagiário) ----------
+export interface IStatusTelegram {
+  disponivel: boolean; // false = servidor sem as variáveis do Telegram
+  conectado: boolean;
+  usuario: string | null; // @username do Telegram, sem @
+  conectadoEm: string | null; // ISO
+}
+
+export interface IVinculoTelegram {
+  link: string; // deep link t.me/<bot>?start=<código>
+  expiraEm: string; // ISO
 }
 
 // ---------- carteiras ----------

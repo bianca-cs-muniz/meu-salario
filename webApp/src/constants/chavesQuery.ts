@@ -9,6 +9,7 @@ export const CHAVES = {
   FATURAS: ['faturas'],
   FIXOS: ['fixos'],
   CARTEIRAS: ['carteiras'],
+  TELEGRAM: ['telegram'],
 } as const;
 
 /** Tudo que muda quando um lançamento, cartão, fixo etc. é salvo (substitui o antigo `avisarMudanca`). */

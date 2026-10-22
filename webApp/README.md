@@ -56,6 +56,9 @@ npm run gerar:icones              # gera os ícones do PWA em public/ (veja a se
    O `vercel.json` faz o fallback de SPA (todas as rotas → `index.html`) e define os
    cabeçalhos de cache do PWA (veja a seção PWA).
    O webhook do WhatsApp aponta para a **API**.
+   O bot do Telegram (estagiário) conversa com a **API**; no app, o bloco
+   **"Estagiário no Telegram"** em Configurações gera o link de conexão (vale 10 minutos),
+   mostra com qual @usuário está conectado e permite desconectar.
 
 | Variável | Onde | Para quê |
 |---|---|---|
@@ -158,7 +161,7 @@ src/
 └── features/
     ├── navegacao/             layout logado: barraLateral, barraInferior, menuMais, semConexao
     ├── login/ · registrar/    telas públicas
-    ├── pendencias/            o que o estagiário anotou pelo WhatsApp
+    ├── pendencias/            o que o estagiário anotou pelo Telegram
     ├── lancamentos/           service, queries e o formulário global de lançamento
     └── categorias/ · cartoes/ · configuracoes/   services + queries (telas nas próximas etapas)
 ```

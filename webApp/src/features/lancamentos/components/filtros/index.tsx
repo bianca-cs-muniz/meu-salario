@@ -75,6 +75,7 @@ export const Filtros = ({ filtros }: { filtros: IFiltrosLancamentos }) => {
         <FiltroSelect rotulo="Origem" valor={filtro.origem ?? ''} aoMudar={(v) => mudar('origem', v as OrigemLancamento)}>
           <option value="APP">App</option>
           <option value="WHATSAPP">WhatsApp</option>
+          <option value="TELEGRAM">Telegram</option>
           <option value="RECORRENCIA">Gastos fixos</option>
         </FiltroSelect>
         <button

@@ -1,6 +1,12 @@
 import { Box, styled } from '@mui/material';
 
 export const Container = styled(Box)`
+  .descricao {
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+    color: ${({ theme }) => theme.vars.palette.cores.mudo};
+  }
+
   .status {
     display: flex;
     align-items: center;
@@ -15,37 +21,43 @@ export const Container = styled(Box)`
     color: ${({ theme }) => theme.vars.palette.cores.mudo};
   }
 
-  .status strong {
+  .desde {
+    color: ${({ theme }) => theme.vars.palette.cores.mudo};
     font-variant-numeric: lining-nums tabular-nums;
   }
 
-  .iconeWhatsapp {
+  .iconeTelegram {
     flex-shrink: 0;
     color: ${({ theme }) => theme.vars.palette.cores.dinheiro};
   }
 
-  .formulario {
+  .aguardando {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 4px;
-
-    ${({ theme }) => theme.breakpoints.up('sm')} {
-      flex-direction: row;
-      align-items: flex-end;
-    }
+    align-items: flex-start;
+    gap: 8px;
   }
 
-  .campo {
-    flex: 1;
-  }
-
-  .desvincular {
-    margin-top: 8px;
-    font-size: 0.875rem;
+  /* Link com cara de botão primário: abre o bot direto no toque (sem window.open depois do await). */
+  .abrirTelegram {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 0.9rem;
     font-weight: 600;
-    cursor: pointer;
-    color: ${({ theme }) => theme.vars.palette.cores.alerta};
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+    text-decoration: none;
+    transition: filter 150ms;
+    background-color: ${({ theme }) => theme.vars.palette.cores.dinheiro};
+    color: ${({ theme }) => theme.vars.palette.cores.sobreDinheiro};
+
+    &:hover {
+      filter: brightness(1.1);
+    }
   }
 
   .exemplos {

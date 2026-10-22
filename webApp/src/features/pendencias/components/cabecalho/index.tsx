@@ -22,7 +22,7 @@ export const Cabecalho = () => {
         Pendências
       </TituloPagina>
       <Tipografias.Legenda className="legenda">
-        O que o estagiário anotou pelo WhatsApp e deixou para você conferir.
+        O que o estagiário anotou pelo Telegram e deixou para você conferir.
       </Tipografias.Legenda>
     </Container>
   );

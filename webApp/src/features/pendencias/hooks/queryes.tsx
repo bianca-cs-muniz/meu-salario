@@ -9,7 +9,7 @@ import lancamentosService from '@features/lancamentos/services';
 const FILTRO = { revisado: false };
 const CHAVE_APROVAR = ['pendencias', 'aprovar'];
 
-/** O que o estagiário anotou pelo WhatsApp e ainda não foi revisado. */
+/** O que o estagiário anotou pelo Telegram e ainda não foi revisado. */
 export const usePendenciasLista = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: [...CHAVES.LANCAMENTOS, FILTRO],

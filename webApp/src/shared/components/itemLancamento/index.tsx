@@ -1,4 +1,4 @@
-import { MessageCircle, Repeat } from 'lucide-react';
+import { MessageCircle, Repeat, Send } from 'lucide-react';
 import type { ILancamento } from '@services/tipos';
 import { ROTULO_FORMA } from '@constants/rotulos';
 import { formatarDinheiro } from '@utils/dinheiro';
@@ -32,6 +32,7 @@ export const ItemLancamento = ({ lancamento: l, aoClicar }: IItemLancamento) => 
           <span className="linha">
             <span className="descricao">{l.descricao}</span>
             {l.origem === 'WHATSAPP' && <MessageCircle size={14} className="whatsapp" aria-label="Anotado pelo WhatsApp" />}
+            {l.origem === 'TELEGRAM' && <Send size={14} className="telegram" aria-label="Anotado pelo Telegram" />}
             {l.origem === 'RECORRENCIA' && <Repeat size={13} className="fixo" aria-label="Gasto fixo" />}
           </span>
           <span className="detalhes">

@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useConfirm } from 'material-ui-confirm';
 import { useMeuPerfil } from '@hooks/useMeuPerfil';
-import type { ICarteira } from '@services/tipos';
+import type { ICarteira, IVinculoTelegram } from '@services/tipos';
 import { mensagemDeErro } from '@utils/erroHttp';
-import { formatarCelular } from '@utils/Mascara';
 import { snackBar } from '@utils/SnackBar';
-import { useCarteirasMutacoes } from './queryes';
+import { useCarteirasMutacoes, useStatusTelegram, useTelegramMutacoes } from './queryes';
 
 // ---------- Perfil
 
@@ -48,72 +48,55 @@ export const useFormularioPerfil = () => {
   };
 };
 
-// ---------- WhatsApp
+// ---------- Telegram
 
-/** Número como a API guarda (só dígitos, com DDI) → texto do campo com a máscara de celular. */
-const paraCampo = (telefone: string | null) => {
-  if (!telefone) return '';
-  const d = telefone.replace(/\D/g, '');
-  return formatarCelular(d.length >= 12 && d.startsWith('55') ? d.slice(2) : d);
-};
+/** Conectar (gera o link e espera o usuário tocar em Iniciar no bot) e desconectar o Telegram. */
+export const useTelegram = () => {
+  const [vinculo, setVinculo] = useState<IVinculoTelegram | null>(null);
+  const { status, estaCarregando, erro, recarregar } = useStatusTelegram(vinculo);
+  const { conectar, estaConectando, desconectar, estaDesconectando } = useTelegramMutacoes();
+  const confirmar = useConfirm();
 
-/** "5511999998888" → "+55 11 99999-8888" (como no legado). */
-const formatarTelefone = (telefone: string) => {
-  const d = telefone.replace(/\D/g, '');
-  if (d.length < 12) return d;
-  return `+${d.slice(0, 2)} ${d.slice(2, 4)} ${d.slice(4, d.length - 4)}-${d.slice(-4)}`;
-};
+  // Conectou enquanto o link estava aberto: avisa (o link some porque o bloco passa a mostrar "Conectado").
+  const conectouPeloLink = Boolean(vinculo && status?.conectado);
+  useEffect(() => {
+    if (conectouPeloLink) snackBar('Telegram conectado', 'success');
+  }, [conectouPeloLink]);
 
-const WhatsappSchema = z.object({
-  // A máscara aceita até 11 dígitos (DDD + número); o DDI 55 é colocado ao salvar.
-  telefone: z.string().refine((v) => {
-    const d = v.replace(/\D/g, '');
-    return d.length === 10 || d.length === 11;
-  }, 'Digite o número com DDD, por exemplo 11 99999-8888.'),
-});
+  // Link expirou sem conectar: esconde o link (o polling para sozinho).
+  useEffect(() => {
+    if (!vinculo) return;
+    const restante = new Date(vinculo.expiraEm).getTime() - Date.now();
+    const timer = setTimeout(() => setVinculo(null), Math.max(restante, 0));
+    return () => clearTimeout(timer);
+  }, [vinculo]);
 
-export type WhatsappForm = z.infer<typeof WhatsappSchema>;
-
-export const useFormularioWhatsapp = () => {
-  const { usuario, atualizarPerfil } = useMeuPerfil();
-  const vinculado = usuario?.telefoneWhatsapp ?? null;
-  const [erroServidor, setErroServidor] = useState<string | null>(null);
-  const [desvinculando, setDesvinculando] = useState(false);
-
-  const { control, handleSubmit, setValue, clearErrors, formState: { errors, isSubmitting } } = useForm<WhatsappForm>({
-    resolver: zodResolver(WhatsappSchema),
-    reValidateMode: 'onSubmit',
-    defaultValues: { telefone: paraCampo(vinculado) },
-  });
-
-  /** Envia só dígitos (com DDI) ou null para desvincular. */
-  const salvar = async (novo: string | null) => {
-    setErroServidor(null);
-    try {
-      await atualizarPerfil({ telefoneWhatsapp: novo });
-      setValue('telefone', paraCampo(novo));
-      snackBar(novo ? 'WhatsApp vinculado' : 'WhatsApp desvinculado', 'success');
-    } catch (e) {
-      setErroServidor(mensagemDeErro(e, 'Não foi possível salvar.'));
-    }
+  const handleConectar = async () => {
+    const novo = await conectar();
+    if (novo) setVinculo(novo);
   };
 
-  const handleSalvar = handleSubmit((d) => salvar(`55${d.telefone.replace(/\D/g, '')}`));
-
-  const handleDesvincular = async () => {
-    clearErrors();
-    setDesvinculando(true);
-    await salvar(null);
-    setDesvinculando(false);
+  const handleDesconectar = async () => {
+    const { confirmed } = await confirmar({
+      title: 'Desconectar Telegram',
+      description: 'O estagiário deixa de anotar o que você mandar pelo Telegram. Você pode conectar de novo quando quiser.',
+      confirmationText: 'Desconectar',
+      cancellationText: 'Cancelar',
+    });
+    if (!confirmed) return;
+    if (await desconectar()) setVinculo(null);
   };
 
   return {
-    control,
-    vinculado: vinculado ? formatarTelefone(vinculado) : null,
-    handleSalvar,
-    handleDesvincular,
-    salvando: isSubmitting || desvinculando,
-    erro: errors.telefone?.message ?? erroServidor,
+    status,
+    estaCarregando,
+    erro,
+    recarregar,
+    link: vinculo?.link ?? null,
+    handleConectar,
+    estaConectando,
+    handleDesconectar,
+    estaDesconectando,
   };
 };
 
